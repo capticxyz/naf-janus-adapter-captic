@@ -156,7 +156,11 @@ class JanusAdapter {
   }
 
   setRoomOccupantListener(occupantListener) {
-    this.onOccupantsChanged = occupantListener;
+    if (this.onOccupantsChanged) {
+      this.onOccupantsChanged.push(occupantListener);
+      return;
+    }
+     this.onOccupantsChanged = [occupantListener];
   }
 
   setDataChannelListeners(openListener, closedListener, messageListener) {
@@ -342,7 +346,7 @@ class JanusAdapter {
 
     // Call the Networked AFrame callbacks for the new occupant.
     this.onOccupantConnected(occupantId);
-    this.onOccupantsChanged(this.occupants);
+    this.onOccupantsChanged.forEach((listener) => listener(this.occupants));
 
     return subscriber;
   }
@@ -375,7 +379,7 @@ class JanusAdapter {
 
     // Call the Networked AFrame callbacks for the removed occupant.
     this.onOccupantDisconnected(occupantId);
-    this.onOccupantsChanged(this.occupants);
+    this.onOccupantsChanged.forEach((listener) => listener(this.occupants));
   }
 
   associate(conn, handle) {
